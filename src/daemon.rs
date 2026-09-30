@@ -32,10 +32,11 @@ const PTY_WINSIZE: Winsize = Winsize {
     ws_ypixel: 0,
 };
 
-pub fn get_runtime_dir(envrc_dir: &Path) -> PathBuf {
+pub fn get_runtime_dir(envrc_dir: &Path, shell: Shell) -> PathBuf {
     let mut hasher = DefaultHasher::new();
     envrc_dir.hash(&mut hasher);
-    let dir_hash = hasher.finish();
+    shell.direnv_export_arg().hash(&mut hasher);
+    let runtime_hash = hasher.finish();
 
     let cache_base = env::var("XDG_CACHE_HOME")
         .map(PathBuf::from)
@@ -47,11 +48,11 @@ pub fn get_runtime_dir(envrc_dir: &Path) -> PathBuf {
 
     cache_base
         .join("direnv-instant")
-        .join(format!("{:x}", dir_hash))
+        .join(format!("{:x}", runtime_hash))
 }
 
-pub fn get_socket_path(envrc_dir: &Path) -> PathBuf {
-    get_runtime_dir(envrc_dir).join("daemon.sock")
+pub fn get_socket_path(envrc_dir: &Path, shell: Shell) -> PathBuf {
+    get_runtime_dir(envrc_dir, shell).join("daemon.sock")
 }
 
 fn create_temp_file(runtime_dir: &Path, prefix: &str) -> std::io::Result<PathBuf> {
@@ -85,7 +86,7 @@ pub struct DaemonContext {
 
 impl DaemonContext {
     pub fn new(parent_pid: i32, envrc_dir: PathBuf, shell: Shell) -> std::io::Result<Self> {
-        let runtime_dir = get_runtime_dir(&envrc_dir);
+        let runtime_dir = get_runtime_dir(&envrc_dir, shell);
 
         // Create runtime directory if it doesn't exist (needed for mkstemp)
         std::fs::create_dir_all(&runtime_dir)?;

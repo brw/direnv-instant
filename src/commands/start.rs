@@ -41,7 +41,7 @@ pub fn run() {
         if current_dir != envrc_dir {
             // Detach rather than force-stop: other shells in the old
             // directory may still be waiting on that daemon.
-            detach_daemon(&get_socket_path(&current_dir), parent_pid);
+            detach_daemon(&get_socket_path(&current_dir, shell), parent_pid);
         }
     }
     shell.export_var(

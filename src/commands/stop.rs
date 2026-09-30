@@ -1,4 +1,5 @@
 use crate::daemon::{detach_daemon, get_socket_path};
+use crate::shell::Shell;
 use nix::unistd::getppid;
 use std::env;
 use std::path::PathBuf;
@@ -10,7 +11,7 @@ pub fn run() {
         .unwrap_or_else(|| getppid().as_raw());
 
     if let Ok(dir) = env::var("__DIRENV_INSTANT_CURRENT_DIR") {
-        let socket_path = get_socket_path(&PathBuf::from(dir));
+        let socket_path = get_socket_path(&PathBuf::from(dir), Shell::from_env());
         detach_daemon(&socket_path, shell_pid);
     }
 }

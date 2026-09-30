@@ -37,7 +37,7 @@ pub fn run(parent_pid: i32, find_envrc: impl FnOnce() -> Option<PathBuf>) {
     if let Ok(current) = env::var("__DIRENV_INSTANT_CURRENT_DIR") {
         let cd = PathBuf::from(&current);
         if cd != envrc_dir {
-            stop_daemon(&get_socket_path(&cd));
+            stop_daemon(&get_socket_path(&cd, Shell::Nushell));
         }
     }
     state.push((
@@ -46,7 +46,7 @@ pub fn run(parent_pid: i32, find_envrc: impl FnOnce() -> Option<PathBuf>) {
     ));
 
     if Multiplexer::detect().is_none() {
-        let runtime = get_runtime_dir(&envrc_dir);
+        let runtime = get_runtime_dir(&envrc_dir, Shell::Nushell);
         let _ = std::fs::create_dir_all(&runtime);
         let env_file = runtime.join("env");
         if let Some(p) = capture_direnv_export(direnv, true, Some(&env_file)) {
