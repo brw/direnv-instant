@@ -2,6 +2,11 @@
 # direnv-instant.sh - Non-blocking direnv integration for bash
 # Provides instant prompts by running direnv asynchronously in the background
 
+# `start` picks its export syntax from this variable, and a parent shell of
+# another type exports it for its own children (fish uses `set -gx`). Pin it to
+# the shell that is actually running.
+export DIRENV_INSTANT_SHELL=bash
+
 # Global state variables
 __DIRENV_INSTANT_ENV_FILE=""
 __DIRENV_INSTANT_STDERR_FILE=""
